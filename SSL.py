@@ -1,8 +1,11 @@
 import tensorflow as tf
-from ssl_models import MultimediaSSLModel
-from data_loader import MultimediaDataset
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.models import Model
+from tensorflow.keras.layers import Input, Dense, Flatten
+from tensorflow.keras.applications import ResNet50
+from ssl_models import MultimediaSSLModel, VisionTransformer, MultimodalTransformer
+from data_loader import MultimediaDataset
 
 # Load and preprocess the dataset
 dataset = MultimediaDataset('path_to_dataset')
@@ -44,9 +47,42 @@ test_generator = test_datagen.flow_from_directory(
     class_mode='binary'
 )
 
+# Define custom contrastive loss function
+def contrastive_loss(y_true, y_pred, margin=1.0):
+    square_pred = tf.square(y_pred)
+    margin_square = tf.square(tf.maximum(margin - y_pred, 0))
+    return tf.reduce_mean(y_true * square_pred + (1 - y_true) * margin_square)
+
+# Implement Vision Transformer (ViT) architecture
+def build_vit_model(input_shape):
+    vit = VisionTransformer(input_shape=input_shape)
+    return vit.build_model()
+
+# Implement Multimodal Transformer architecture
+def build_multimodal_transformer(image_input_shape, audio_input_shape):
+    transformer = MultimodalTransformer(image_input_shape=image_input_shape, audio_input_shape=audio_input_shape)
+    return transformer.build_model()
+
+# Choose architecture: ResNet50, VisionTransformer, or MultimodalTransformer
+def build_model(input_shape, architecture='ResNet50'):
+    if architecture == 'ResNet50':
+        base_model = ResNet50(weights='imagenet', include_top=False, input_shape=input_shape)
+        x = Flatten()(base_model.output)
+        x = Dense(512, activation='relu')(x)
+        output = Dense(1, activation='sigmoid')(x)
+        model = Model(inputs=base_model.input, outputs=output)
+    elif architecture == 'VisionTransformer':
+        model = build_vit_model(input_shape)
+    elif architecture == 'MultimodalTransformer':
+        # Placeholder for audio input shape
+        audio_input_shape = (100, 128)  # Example shape, adjust as necessary
+        model = build_multimodal_transformer(input_shape, audio_input_shape)
+    return model
+
 # Initialize and compile the SSL model
-ssl_model = MultimediaSSLModel(input_shape=(150, 150, 3))
-ssl_model.compile(optimizer=Adam(lr=1e-4), loss='contrastive_loss')
+input_shape = (150, 150, 3)
+ssl_model = build_model(input_shape, architecture='VisionTransformer')
+ssl_model.compile(optimizer=Adam(lr=1e-4), loss=contrastive_loss)
 
 # Train the SSL model
 ssl_model.fit(
