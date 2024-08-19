@@ -19,19 +19,19 @@ def build_ssl_model():
     model.compile(optimizer=Adam(), loss='categorical_crossentropy', metrics=['accuracy'])
     return model
 
-# Improved Audio Data Augmentation
+
 def augment_audio_data(audio_data: np.ndarray) -> np.ndarray:
     augmented_audio = []
     for audio in audio_data:
     white noise, time-shifting, pitch shifting
         noise = np.random.randn(len(audio))
-        augmented_audio.append(audio + 0.005 * noise)  # Adding white noise
+        augmented_audio.append(audio + 0.005 * noise) 
         
     return np.array(augmented_audio)
 
 
 def preprocess_and_augment_data(train_data: dict, augment_audio: bool = False):
-    # Image augmentation
+  
     image_datagen = ImageDataGenerator(
         rotation_range=20,
         width_shift_range=0.2,
@@ -49,7 +49,7 @@ def preprocess_and_augment_data(train_data: dict, augment_audio: bool = False):
     
     return augmented_images, None
 
-# Enhanced Fine-tuning with Supervised Learning
+
 def fine_tune_ssl_model(ssl_model: tf.keras.Model, train_data: dict, val_data, epochs: int = 5):
     augmented_images, augmented_audio = preprocess_and_augment_data(train_data, augment_audio=True)
     
@@ -60,7 +60,7 @@ def fine_tune_ssl_model(ssl_model: tf.keras.Model, train_data: dict, val_data, e
         validation_data=val_data
     )
 
-# Hyperparameter Optimization with GridSearchCV
+
 def optimize_hyperparameters(ssl_model: tf.keras.Model, param_grid: dict, train_data: dict):
     model = tf.keras.wrappers.scikit_learn.KerasClassifier(build_fn=build_ssl_model, verbose=0)
     
@@ -75,7 +75,7 @@ def evaluate_multimodal_model(ssl_model: tf.keras.Model, test_generator):
     metrics = ssl_model.evaluate(test_generator)
     print("Evaluation Metrics:", metrics)
 
-# Example usage
+
 param_grid = {
     'lr': [1e-4, 1e-3],
     'batch_size': [32, 64],
