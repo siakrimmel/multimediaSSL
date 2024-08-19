@@ -5,11 +5,11 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.preprocessing import sequence
 import numpy as np
 
-# Placeholder for your SSL model
+
 def build_ssl_model():
-    # Placeholder: define your SSL model here
+   
     model = tf.keras.models.Sequential()
-    # Example layers
+   
     model.add(tf.keras.layers.InputLayer(input_shape=(224, 224, 3)))
     model.add(tf.keras.layers.Conv2D(32, kernel_size=(3, 3), activation='relu'))
     model.add(tf.keras.layers.MaxPooling2D(pool_size=(2, 2)))
@@ -23,13 +23,13 @@ def build_ssl_model():
 def augment_audio_data(audio_data: np.ndarray) -> np.ndarray:
     augmented_audio = []
     for audio in audio_data:
-        # Example augmentations: white noise, time-shifting, pitch shifting
+    white noise, time-shifting, pitch shifting
         noise = np.random.randn(len(audio))
         augmented_audio.append(audio + 0.005 * noise)  # Adding white noise
-        # Add more augmentations as needed
+        
     return np.array(augmented_audio)
 
-# Improved Preprocessing and Augmentation Function
+
 def preprocess_and_augment_data(train_data: dict, augment_audio: bool = False):
     # Image augmentation
     image_datagen = ImageDataGenerator(
@@ -70,7 +70,7 @@ def optimize_hyperparameters(ssl_model: tf.keras.Model, param_grid: dict, train_
     print(f"Best parameters found: {grid_result.best_params_}")
     print(f"Best model found: {grid_result.best_estimator_}")
 
-# Evaluation with Additional Metrics
+
 def evaluate_multimodal_model(ssl_model: tf.keras.Model, test_generator):
     metrics = ssl_model.evaluate(test_generator)
     print("Evaluation Metrics:", metrics)
@@ -97,7 +97,7 @@ evaluate_multimodal_model(ssl_model, test_generator)
 
 ssl_model.save('final_ssl_multimedia_recommendation_model.h5')
 
-# Define contrastive loss function for contrastive learning tasks
+
 def contrastive_loss(y_true, y_pred, margin=1.0):
     square_pred = tf.square(y_pred)
     margin_square = tf.square(tf.maximum(margin - y_pred, 0))
